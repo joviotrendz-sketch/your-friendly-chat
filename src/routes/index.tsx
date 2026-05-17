@@ -1,262 +1,75 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
-import { ShieldCheck, Hammer, Plane, Instagram, Twitter, Youtube } from "lucide-react";
-import heroImg from "@/assets/hero.jpg";
-import product1 from "@/assets/product-1.jpg";
-import product2 from "@/assets/product-2.jpg";
-import { useReveal } from "@/hooks/use-reveal";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { useEffect, useRef, useState } from "react";
+import { ArrowRight, Flame, Sparkles, Timer, Tv, Zap } from "lucide-react";
+import { PRODUCTS, CATEGORIES, byCategory } from "@/lib/products";
+import { ProductCard } from "@/components/ProductCard";
 
 export const Route = createFileRoute("/")({
-  component: Landing,
   head: () => ({
     meta: [
-      { title: "JovioTrendz — Exclusivity is Earned" },
-      {
-        name: "description",
-        content:
-          "JovioTrendz crafts limited-edition luxury pieces for the few who understand quiet power. Reserve your masterpiece.",
-      },
-      { property: "og:title", content: "JovioTrendz — Quiet Luxury, Limited Edition" },
-      {
-        property: "og:description",
-        content: "Only 100 pieces worldwide. Exclusivity is not bought, it is earned.",
-      },
+      { title: "JOVIO — The Future Marketplace" },
+      { name: "description", content: "Shop futuristic luxury, fashion, electronics, gaming and more on JOVIO — a global next-gen marketplace." },
     ],
   }),
+  component: Home,
 });
 
-function Landing() {
-  useReveal();
-  const [scrolled, setScrolled] = useState(false);
+const HEROS = [
+  { tag: "Fall · Drop 04", title: "Wear the future.", sub: "Limited atelier capsule, signed and numbered.", img: "https://picsum.photos/seed/jovio-hero-1/1600/900", cta: "Shop the drop" },
+  { tag: "JOVIO Live", title: "Live shopping is here.", sub: "Creators going live every hour. Bid, chat, buy.", img: "https://picsum.photos/seed/jovio-hero-2/1600/900", cta: "Enter the stream" },
+  { tag: "Festival", title: "Festival of Lights · 60% off.", sub: "Millions of products. Free express shipping over $50.", img: "https://picsum.photos/seed/jovio-hero-3/1600/900", cta: "See deals" },
+];
 
+function useCountdown(target: number) {
+  const [now, setNow] = useState(Date.now());
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 24);
-    window.addEventListener("scroll", onScroll);
-    return () => window.removeEventListener("scroll", onScroll);
+    const t = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(t);
   }, []);
-
-  return (
-    <div className="min-h-screen bg-background text-foreground overflow-x-hidden">
-      <FontLink />
-      <Header scrolled={scrolled} />
-      <Hero />
-      <Story />
-      <Showcase />
-      <Trust />
-      <Footer />
-    </div>
-  );
-}
-
-function FontLink() {
-  return (
-    <>
-      <link rel="preconnect" href="https://fonts.googleapis.com" />
-      <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
-      <link
-        rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500&family=Inter:wght@300;400;500&display=swap"
-      />
-    </>
-  );
-}
-
-function Header({ scrolled }: { scrolled: boolean }) {
-  return (
-    <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
-        scrolled
-          ? "bg-background/80 backdrop-blur-md border-b border-border/60"
-          : "bg-transparent"
-      }`}
-    >
-      <nav className="max-w-7xl mx-auto px-6 md:px-10 py-5 grid grid-cols-3 items-center">
-        <div className="text-xs tracking-luxury text-muted-foreground uppercase hidden md:block">
-          Est. MMXXV
-        </div>
-        <a
-          href="#top"
-          className="font-serif text-2xl md:text-3xl text-center tracking-wide text-foreground"
-        >
-          Jovio<span className="text-gold">Trendz</span>
-        </a>
-        <ul className="flex justify-end gap-6 md:gap-10 text-[11px] md:text-xs tracking-[0.25em] uppercase text-muted-foreground">
-          <li>
-            <a href="#collection" className="hover:text-gold transition-colors">
-              Collection
-            </a>
-          </li>
-          <li>
-            <a href="#story" className="hover:text-gold transition-colors">
-              The Story
-            </a>
-          </li>
-          <li>
-            <a href="#contact" className="hover:text-gold transition-colors">
-              Contact
-            </a>
-          </li>
-        </ul>
-      </nav>
-    </header>
-  );
+  const s = Math.max(0, Math.floor((target - now) / 1000));
+  return {
+    h: String(Math.floor(s / 3600)).padStart(2, "0"),
+    m: String(Math.floor((s % 3600) / 60)).padStart(2, "0"),
+    s: String(s % 60).padStart(2, "0"),
+  };
 }
 
 function Hero() {
+  const [i, setI] = useState(0);
+  useEffect(() => {
+    const t = setInterval(() => setI((x) => (x + 1) % HEROS.length), 6000);
+    return () => clearInterval(t);
+  }, []);
   return (
-    <section id="top" className="relative min-h-screen flex items-center justify-center">
-      <img
-        src={heroImg}
-        alt="A sculpted obsidian form with a thread of gold, illuminated in cinematic darkness"
-        width={1920}
-        height={1280}
-        className="absolute inset-0 w-full h-full object-cover"
-      />
-      <div className="absolute inset-0 bg-gradient-to-b from-background/70 via-background/40 to-background" />
-      <div className="absolute inset-0 bg-gradient-to-r from-background/80 via-transparent to-background/40" />
-
-      <div className="relative z-10 max-w-5xl px-6 text-center reveal">
-        <p className="text-[10px] md:text-xs tracking-luxury text-gold uppercase mb-8">
-          — A Private Maison —
-        </p>
-        <h1 className="font-serif text-4xl sm:text-6xl md:text-7xl lg:text-8xl leading-[1.05] text-foreground">
-          Exclusivity is not bought,
-          <br />
-          <span className="italic gold-gradient-text">it is earned.</span>
-        </h1>
-        <p className="mt-8 max-w-xl mx-auto text-sm md:text-base text-muted-foreground font-light leading-relaxed">
-          A clandestine atelier devoted to the few who understand silence,
-          shadow, and singular craftsmanship.
-        </p>
-        <div className="mt-12">
-          <a
-            href="#collection"
-            className="group inline-flex items-center gap-3 border border-gold/60 px-10 py-4 text-[11px] tracking-luxury uppercase text-foreground hover:bg-gold hover:text-primary-foreground transition-all duration-500"
+    <section className="relative mx-auto max-w-[1400px] px-4 pt-6">
+      <div className="relative aspect-[21/9] md:aspect-[21/8] rounded-3xl overflow-hidden border border-border">
+        {HEROS.map((h, idx) => (
+          <div
+            key={h.title}
+            className={`absolute inset-0 transition-opacity duration-1000 ${idx === i ? "opacity-100" : "opacity-0"}`}
           >
-            Discover the Mystery
-            <span className="block w-6 h-px bg-current transition-all duration-500 group-hover:w-10" />
-          </a>
-        </div>
-      </div>
-
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 text-[10px] tracking-luxury text-muted-foreground uppercase animate-pulse">
-        Scroll
-      </div>
-    </section>
-  );
-}
-
-function Story() {
-  return (
-    <section id="story" className="relative py-32 md:py-48 px-6">
-      <div className="max-w-3xl mx-auto text-center">
-        <p className="reveal text-[10px] tracking-luxury text-gold uppercase mb-8">
-          Chapter I — The Story
-        </p>
-        <h2 className="reveal font-serif text-3xl md:text-5xl lg:text-6xl leading-tight text-foreground">
-          Some things are not made to be seen.
-          <br />
-          <span className="italic text-muted-foreground">They are made to be felt.</span>
-        </h2>
-        <div className="hairline w-24 mx-auto my-12" />
-        <div className="reveal space-y-6 text-base md:text-lg text-muted-foreground font-light leading-loose">
-          <p>
-            In a quiet room without address, a small circle of artisans bend
-            metal, leather, and obsidian to a single, exacting standard. They
-            do not sign their work. They do not advertise. They wait — for the
-            ones who will recognise it.
-          </p>
-          <p>
-            JovioTrendz is not a brand to be worn. It is a confidence to be
-            carried. A whisper among those who have already arrived, and a
-            silence to those who have not.
-          </p>
-          <p className="font-serif italic text-foreground/80 text-xl md:text-2xl pt-4">
-            "We do not pursue the loud. The loud will never find us."
-          </p>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function Showcase() {
-  const items = [
-    {
-      img: product1,
-      eyebrow: "Object N° 001",
-      name: "L'Encre Noire",
-      desc: "An obsidian-cast vessel finished with a single seam of 24k. Hand-numbered.",
-      price: "€ 4,800",
-    },
-    {
-      img: product2,
-      eyebrow: "Object N° 002",
-      name: "Heure Silencieuse",
-      desc: "A blackened steel chronograph. Movement assembled in a single workshop.",
-      price: "€ 12,400",
-    },
-  ];
-
-  return (
-    <section id="collection" className="relative py-32 md:py-48 px-6 bg-card/40">
-      <div className="max-w-7xl mx-auto">
-        <div className="text-center mb-20 reveal">
-          <p className="text-[10px] tracking-luxury text-gold uppercase mb-6">
-            The Limited Edition
-          </p>
-          <h2 className="font-serif text-4xl md:text-6xl">
-            Only one hundred will exist.
-          </h2>
-          <p className="mt-4 text-sm md:text-base text-muted-foreground max-w-xl mx-auto font-light">
-            Once they are claimed, they are gone. There will be no second pressing.
-          </p>
-        </div>
-
-        <div className="grid md:grid-cols-2 gap-16 lg:gap-24">
-          {items.map((it, i) => (
-            <article
-              key={it.name}
-              className="reveal group"
-              style={{ transitionDelay: `${i * 120}ms` }}
-            >
-              <div className="relative overflow-hidden bg-background">
-                <img
-                  src={it.img}
-                  alt={it.name}
-                  width={1024}
-                  height={1280}
-                  loading="lazy"
-                  className="w-full h-[520px] md:h-[640px] object-cover transition-transform duration-[2000ms] group-hover:scale-105"
-                />
-                <div className="absolute top-5 left-5 flex items-center gap-2 border border-gold/70 bg-background/70 backdrop-blur-sm px-3 py-1.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-gold animate-pulse" />
-                  <span className="text-[10px] tracking-luxury text-gold uppercase">
-                    Limited — 100 Worldwide
-                  </span>
-                </div>
+            <img src={h.img} alt={h.title} className="w-full h-full object-cover" />
+            <div className="absolute inset-0 bg-gradient-to-tr from-background via-background/60 to-transparent" />
+            <div className="absolute inset-0 flex flex-col justify-center gap-4 p-8 md:p-16 max-w-2xl">
+              <span className="text-[10px] tracking-luxury text-neon">{h.tag}</span>
+              <h1 className="font-serif text-4xl md:text-7xl leading-[0.95] text-foreground">{h.title}</h1>
+              <p className="text-muted-foreground max-w-md">{h.sub}</p>
+              <div className="flex items-center gap-3 pt-2">
+                <Link to="/shop" className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-6 py-3 rounded-full text-sm font-semibold">
+                  {h.cta} <ArrowRight size={16} />
+                </Link>
+                <button className="inline-flex items-center gap-2 border border-border px-6 py-3 rounded-full text-sm">Explore</button>
               </div>
-
-              <div className="pt-8">
-                <p className="text-[10px] tracking-luxury text-muted-foreground uppercase">
-                  {it.eyebrow}
-                </p>
-                <h3 className="font-serif text-3xl md:text-4xl mt-3">{it.name}</h3>
-                <p className="mt-4 text-sm text-muted-foreground font-light leading-relaxed max-w-md">
-                  {it.desc}
-                </p>
-                <div className="mt-8 flex items-center justify-between border-t border-border pt-6">
-                  <span className="font-serif text-xl text-foreground">{it.price}</span>
-                  <a
-                    href="#contact"
-                    className="group/btn inline-flex items-center gap-3 text-[11px] tracking-luxury uppercase text-gold hover:text-foreground transition-colors"
-                  >
-                    {i === 0 ? "Reserve Your Masterpiece" : "Pre-Order Now"}
-                    <span className="block w-6 h-px bg-current transition-all duration-500 group-hover/btn:w-12" />
-                  </a>
-                </div>
-              </div>
-            </article>
+            </div>
+          </div>
+        ))}
+        <div className="absolute bottom-5 right-6 flex gap-2">
+          {HEROS.map((_, idx) => (
+            <button
+              key={idx}
+              onClick={() => setI(idx)}
+              className={`h-1.5 rounded-full transition-all ${idx === i ? "w-8 bg-primary" : "w-4 bg-border"}`}
+            />
           ))}
         </div>
       </div>
@@ -264,26 +77,53 @@ function Showcase() {
   );
 }
 
-function Trust() {
-  const pillars = [
-    { icon: Hammer, title: "100% Premium Craftsmanship", desc: "Hand-finished in a single atelier" },
-    { icon: ShieldCheck, title: "Secure Checkout", desc: "Discreet, encrypted, anonymous" },
-    { icon: Plane, title: "Global Elite Shipping", desc: "White-glove delivery, worldwide" },
-  ];
+function DealOfDay() {
+  const target = useRef(Date.now() + 1000 * 60 * 60 * 7).current;
+  const { h, m, s } = useCountdown(target);
+  const p = PRODUCTS[3];
   return (
-    <section className="py-24 px-6 border-y border-border">
-      <div className="max-w-6xl mx-auto grid md:grid-cols-3 gap-12 md:gap-6">
-        {pillars.map((p, i) => (
-          <div
-            key={p.title}
-            className="reveal flex flex-col items-center text-center"
-            style={{ transitionDelay: `${i * 100}ms` }}
-          >
-            <p.icon className="text-gold mb-5" strokeWidth={1} size={32} />
-            <h4 className="font-serif text-lg text-foreground">{p.title}</h4>
-            <p className="mt-2 text-xs tracking-wider text-muted-foreground uppercase">
-              {p.desc}
-            </p>
+    <section className="mx-auto max-w-[1400px] px-4 mt-16">
+      <div className="rounded-3xl border border-border bg-card overflow-hidden grid md:grid-cols-2">
+        <img src={p.image} alt={p.title} className="aspect-square md:aspect-auto md:h-full object-cover" />
+        <div className="p-8 md:p-12 flex flex-col justify-center">
+          <div className="flex items-center gap-2 text-neon text-xs tracking-luxury"><Flame size={14}/> DEAL OF THE DAY</div>
+          <h2 className="font-serif text-3xl md:text-5xl mt-3">{p.title}</h2>
+          <p className="text-muted-foreground mt-3 max-w-md">{p.description}</p>
+          <div className="flex items-baseline gap-3 mt-6">
+            <span className="text-4xl font-semibold text-primary">${p.price}</span>
+            <span className="line-through text-muted-foreground">${p.oldPrice}</span>
+            <span className="text-xs bg-primary/15 text-primary px-2 py-1 rounded-full">-40%</span>
+          </div>
+          <div className="mt-6 flex items-center gap-3">
+            <Timer size={16} className="text-muted-foreground" />
+            {[h, m, s].map((v, idx) => (
+              <div key={idx} className="bg-background border border-border rounded-lg px-3 py-2 font-mono text-lg">{v}</div>
+            ))}
+          </div>
+          <div className="mt-8 flex gap-3">
+            <Link to="/product/$id" params={{ id: p.id }} className="bg-primary text-primary-foreground rounded-full px-6 py-3 text-sm font-semibold">Buy now</Link>
+            <Link to="/shop" className="border border-border rounded-full px-6 py-3 text-sm">More deals</Link>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Row({ title, icon, items }: { title: string; icon?: React.ReactNode; items: typeof PRODUCTS }) {
+  return (
+    <section className="mx-auto max-w-[1400px] px-4 mt-16">
+      <div className="flex items-end justify-between mb-5">
+        <div className="flex items-center gap-2">
+          {icon}
+          <h2 className="font-serif text-2xl md:text-3xl">{title}</h2>
+        </div>
+        <Link to="/shop" className="text-xs text-muted-foreground hover:text-foreground tracking-luxury">VIEW ALL →</Link>
+      </div>
+      <div className="flex gap-4 overflow-x-auto scrollbar-none -mx-4 px-4 pb-2 snap-x">
+        {items.map((p) => (
+          <div key={p.id} className="min-w-[240px] md:min-w-[280px] snap-start">
+            <ProductCard p={p} />
           </div>
         ))}
       </div>
@@ -291,66 +131,71 @@ function Trust() {
   );
 }
 
-function Footer() {
+function CategoryGrid() {
   return (
-    <footer id="contact" className="bg-background pt-24 pb-10 px-6">
-      <div className="max-w-5xl mx-auto text-center reveal">
-        <p className="text-[10px] tracking-luxury text-gold uppercase mb-6">
-          By Invitation
-        </p>
-        <h3 className="font-serif text-3xl md:text-5xl text-foreground">
-          Join the Elite Club.
-        </h3>
-        <p className="mt-4 text-sm text-muted-foreground font-light max-w-md mx-auto">
-          A private correspondence. Sent rarely. Read carefully.
-        </p>
-
-        <form
-          onSubmit={(e) => e.preventDefault()}
-          className="mt-10 max-w-md mx-auto flex items-center border-b border-border focus-within:border-gold transition-colors"
-        >
-          <input
-            type="email"
-            required
-            placeholder="your@private.email"
-            className="flex-1 bg-transparent py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
-          />
-          <button
-            type="submit"
-            className="text-[11px] tracking-luxury uppercase text-gold hover:text-foreground transition-colors py-3 pl-4"
+    <section className="mx-auto max-w-[1400px] px-4 mt-20">
+      <h2 className="font-serif text-3xl md:text-4xl mb-6">Shop every universe</h2>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        {CATEGORIES.map((c, i) => (
+          <Link
+            key={c}
+            to="/shop"
+            search={{ cat: c } as never}
+            className="group relative aspect-[4/5] rounded-2xl overflow-hidden border border-border"
           >
-            Request →
-          </button>
-        </form>
+            <img src={`https://picsum.photos/seed/jovio-cat-${i}/600/800`} alt={c} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+            <div className="absolute inset-0 bg-gradient-to-t from-background via-background/30 to-transparent" />
+            <div className="absolute bottom-4 left-4 right-4">
+              <div className="text-xs text-muted-foreground tracking-luxury">EXPLORE</div>
+              <div className="font-serif text-2xl">{c}</div>
+            </div>
+          </Link>
+        ))}
       </div>
+    </section>
+  );
+}
 
-      <div className="hairline max-w-6xl mx-auto my-16" />
-
-      <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-8">
-        <div className="font-serif text-xl">
-          Jovio<span className="text-gold">Trendz</span>
-        </div>
-        <div className="flex gap-6 text-muted-foreground">
-          <a href="#" aria-label="Instagram" className="hover:text-gold transition-colors">
-            <Instagram size={16} strokeWidth={1.25} />
-          </a>
-          <a href="#" aria-label="Twitter" className="hover:text-gold transition-colors">
-            <Twitter size={16} strokeWidth={1.25} />
-          </a>
-          <a href="#" aria-label="Youtube" className="hover:text-gold transition-colors">
-            <Youtube size={16} strokeWidth={1.25} />
-          </a>
-        </div>
-        <ul className="flex gap-6 text-[10px] tracking-luxury uppercase text-muted-foreground">
-          <li><a href="#" className="hover:text-gold transition-colors">Terms</a></li>
-          <li><a href="#" className="hover:text-gold transition-colors">Privacy</a></li>
-          <li><a href="#" className="hover:text-gold transition-colors">Pre-Order Policy</a></li>
-        </ul>
+function LiveStrip() {
+  return (
+    <section className="mx-auto max-w-[1400px] px-4 mt-20">
+      <div className="flex items-center gap-2 mb-5">
+        <span className="relative flex h-2 w-2"><span className="absolute inline-flex h-full w-full rounded-full bg-destructive opacity-75 animate-ping"/><span className="relative inline-flex rounded-full h-2 w-2 bg-destructive"/></span>
+        <h2 className="font-serif text-2xl md:text-3xl">Live shopping now</h2>
+        <Tv size={18} className="ml-2 text-muted-foreground"/>
       </div>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        {[0,1,2,3].map((i) => (
+          <div key={i} className="relative aspect-[3/4] rounded-2xl overflow-hidden border border-border">
+            <img src={`https://picsum.photos/seed/jovio-live-${i}/400/600`} alt="" className="w-full h-full object-cover"/>
+            <div className="absolute inset-0 bg-gradient-to-t from-background/90 to-transparent"/>
+            <span className="absolute top-3 left-3 text-[10px] bg-destructive text-white px-2 py-1 rounded-full tracking-luxury">LIVE</span>
+            <span className="absolute top-3 right-3 text-[10px] bg-black/60 text-white px-2 py-1 rounded-full">{(i+1)*342} watching</span>
+            <div className="absolute bottom-3 left-3 right-3 text-sm">
+              <div className="font-medium">Drop @ Atelier {i+1}</div>
+              <div className="text-xs text-muted-foreground">Hosted by @creator{i+1}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
 
-      <p className="mt-10 text-center text-[10px] tracking-luxury text-muted-foreground/60 uppercase">
-        © MMXXV JovioTrendz — All Whispers Reserved
-      </p>
-    </footer>
+function Home() {
+  return (
+    <div className="pb-20">
+      <Hero />
+      <Row title="Trending now" icon={<Zap size={18} className="text-neon"/>} items={PRODUCTS.slice(0, 10)} />
+      <DealOfDay />
+      <Row title="Electronics" items={byCategory("Electronics").slice(0, 10)} />
+      <Row title="Luxury Atelier" icon={<Sparkles size={18} className="text-primary"/>} items={byCategory("Luxury").slice(0, 10)} />
+      <Row title="Sneakers & Streetwear" items={byCategory("Shoes").slice(0, 10)} />
+      <CategoryGrid />
+      <Row title="Gaming gear" items={byCategory("Gaming").slice(0, 10)} />
+      <Row title="Watches" items={byCategory("Watches").slice(0, 10)} />
+      <LiveStrip />
+      <Row title="AI Recommendations" icon={<Sparkles size={18} className="text-neon"/>} items={PRODUCTS.slice(20, 30)} />
+    </div>
   );
 }
