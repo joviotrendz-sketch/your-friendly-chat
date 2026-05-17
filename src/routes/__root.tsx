@@ -4,9 +4,12 @@ import {
   Link,
   createRootRouteWithContext,
   useRouter,
+  useRouterState,
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
+import { Header } from "@/components/Header";
+import { Footer } from "@/components/Footer";
 
 import appCss from "../styles.css?url";
 
@@ -72,14 +75,14 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Lovable Generated Project" },
-      { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
+      { title: "JOVIO — The Future of Global Commerce" },
+      { name: "description", content: "JOVIO is a futuristic multi-vendor marketplace for fashion, luxury, gaming, beauty, electronics and more." },
+      { name: "author", content: "JOVIO" },
+      { property: "og:title", content: "JOVIO — The Future of Global Commerce" },
+      { property: "og:description", content: "Discover, sell and live the next era of global retail." },
       { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
-      { name: "twitter:site", content: "@Lovable" },
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:site", content: "@JOVIO" },
     ],
     links: [
       {
@@ -110,10 +113,18 @@ function RootShell({ children }: { children: React.ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const minimal = pathname === "/login";
 
   return (
     <QueryClientProvider client={queryClient}>
-      <Outlet />
+      <div className="min-h-screen flex flex-col bg-background bg-hero-grad">
+        {!minimal && <Header />}
+        <main className="flex-1">
+          <Outlet />
+        </main>
+        {!minimal && <Footer />}
+      </div>
     </QueryClientProvider>
   );
 }
