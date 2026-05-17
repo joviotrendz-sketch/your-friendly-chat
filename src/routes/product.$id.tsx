@@ -73,14 +73,14 @@ function PDP() {
           <div className="mt-6">
             <div className="text-xs tracking-luxury text-muted-foreground mb-2">COLOR</div>
             <div className="flex gap-2">
-              {p.colors?.map((c) => <button key={c} className="h-7 w-7 rounded-full border border-border" style={{ background: c }}/>)}
+              {p.colors?.map((c: string) => <button key={c} className="h-7 w-7 rounded-full border border-border" style={{ background: c }}/>)}
             </div>
           </div>
 
           <div className="mt-5">
             <div className="text-xs tracking-luxury text-muted-foreground mb-2">SIZE</div>
             <div className="flex gap-2">
-              {p.sizes?.map((s) => (
+              {p.sizes?.map((s: string) => (
                 <button key={s} onClick={() => setSize(s)} className={`px-4 py-2 rounded-full border text-sm ${size===s?"bg-primary text-primary-foreground border-primary":"border-border"}`}>{s}</button>
               ))}
             </div>
