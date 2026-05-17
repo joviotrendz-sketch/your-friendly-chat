@@ -109,4 +109,10 @@
     background: linear-gradient(90deg, transparent, var(--gold-muted), transparent);
     height: 1px;
   }
+  .text-neon { color: var(--neon); }
+  .bg-glass { background-color: var(--glass); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); }
+  .bg-hero-grad { background-image: var(--gradient-hero); }
+  .neon-border { box-shadow: 0 0 0 1px color-mix(in oklab, var(--neon) 40%, transparent), 0 10px 40px -10px color-mix(in oklab, var(--neon) 25%, transparent); }
+  .scrollbar-none::-webkit-scrollbar { display: none; }
+  .scrollbar-none { scrollbar-width: none; }
 }
