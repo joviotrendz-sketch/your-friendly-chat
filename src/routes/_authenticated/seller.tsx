@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Package, DollarSign, Users, TrendingUp, Plus, MessageSquare, ShieldCheck, Megaphone } from "lucide-react";
 import { PRODUCTS } from "@/lib/products";
 
-export const Route = createFileRoute("/seller")({
+export const Route = createFileRoute("/_authenticated/seller")({
   head: () => ({ meta: [{ title: "Seller Hub — JOVIO" }] }),
   component: Seller,
 });

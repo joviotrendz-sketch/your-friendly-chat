@@ -1,4 +1,4 @@
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClient, QueryClientProvider, useQueryClient } from "@tanstack/react-query";
 import {
   Outlet,
   Link,
@@ -8,8 +8,10 @@ import {
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
+import { useEffect } from "react";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
+import { supabase } from "@/integrations/supabase/client";
 
 import appCss from "../styles.css?url";
 
@@ -115,9 +117,11 @@ function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const minimal = pathname === "/login";
+  const router = useRouter();
 
   return (
     <QueryClientProvider client={queryClient}>
+      <AuthSync router={router} />
       <div className="min-h-screen flex flex-col bg-background bg-hero-grad">
         {!minimal && <Header />}
         <main className="flex-1">
@@ -127,4 +131,16 @@ function RootComponent() {
       </div>
     </QueryClientProvider>
   );
+}
+
+function AuthSync({ router }: { router: ReturnType<typeof useRouter> }) {
+  const queryClient = useQueryClient();
+  useEffect(() => {
+    const { data: sub } = supabase.auth.onAuthStateChange(() => {
+      router.invalidate();
+      queryClient.invalidateQueries();
+    });
+    return () => sub.subscription.unsubscribe();
+  }, [router, queryClient]);
+  return null;
 }

@@ -5,7 +5,7 @@ import { PRODUCTS } from "@/lib/products";
 import { useCart } from "@/store/cart";
 import { ProductCard } from "@/components/ProductCard";
 
-export const Route = createFileRoute("/account")({
+export const Route = createFileRoute("/_authenticated/account")({
   head: () => ({ meta: [{ title: "My JOVIO" }] }),
   component: Account,
 });
