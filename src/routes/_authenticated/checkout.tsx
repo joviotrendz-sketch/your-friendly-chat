@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Check, CreditCard, Wallet, Banknote, Smartphone } from "lucide-react";
 import { useCart } from "@/store/cart";
 
-export const Route = createFileRoute("/checkout")({
+export const Route = createFileRoute("/_authenticated/checkout")({
   head: () => ({ meta: [{ title: "Checkout — JOVIO" }] }),
   component: Checkout,
 });
