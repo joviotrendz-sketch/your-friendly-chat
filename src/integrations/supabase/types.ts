@@ -17,24 +17,54 @@ export type Database = {
       profiles: {
         Row: {
           avatar_url: string | null
+          contact_email: string | null
+          contact_phone: string | null
+          country: string | null
           created_at: string
           display_name: string | null
           id: string
+          is_seller: boolean
+          seller_onboarded_at: string | null
+          store_category: string | null
+          store_description: string | null
+          store_name: string | null
+          store_slug: string | null
           updated_at: string
+          website_url: string | null
         }
         Insert: {
           avatar_url?: string | null
+          contact_email?: string | null
+          contact_phone?: string | null
+          country?: string | null
           created_at?: string
           display_name?: string | null
           id: string
+          is_seller?: boolean
+          seller_onboarded_at?: string | null
+          store_category?: string | null
+          store_description?: string | null
+          store_name?: string | null
+          store_slug?: string | null
           updated_at?: string
+          website_url?: string | null
         }
         Update: {
           avatar_url?: string | null
+          contact_email?: string | null
+          contact_phone?: string | null
+          country?: string | null
           created_at?: string
           display_name?: string | null
           id?: string
+          is_seller?: boolean
+          seller_onboarded_at?: string | null
+          store_category?: string | null
+          store_description?: string | null
+          store_name?: string | null
+          store_slug?: string | null
           updated_at?: string
+          website_url?: string | null
         }
         Relationships: []
       }
