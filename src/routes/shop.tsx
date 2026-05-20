@@ -1,7 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
-import { Grid3x3, List, SlidersHorizontal } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { Grid3x3, List, SlidersHorizontal, Loader2 } from "lucide-react";
 import { PRODUCTS, CATEGORIES } from "@/lib/products";
+import type { Product } from "@/lib/products";
+import { fetchActiveProducts } from "@/lib/db-products";
 import { ProductCard } from "@/components/ProductCard";
 
 type Search = { q?: string; cat?: string };
@@ -26,8 +28,21 @@ function Shop() {
   const [activeBrands, setActiveBrands] = useState<string[]>([]);
   const [minRating, setMinRating] = useState(0);
 
+  const [dbProducts, setDbProducts] = useState<Product[]>([]);
+  const [loadingDb, setLoadingDb] = useState(true);
+
+  useEffect(() => {
+    fetchActiveProducts()
+      .then(setDbProducts)
+      .catch(() => setDbProducts([]))
+      .finally(() => setLoadingDb(false));
+  }, []);
+
+  // Real seller products first, fall back/append demo catalog so the shop never looks empty.
+  const all = useMemo(() => [...dbProducts, ...PRODUCTS], [dbProducts]);
+
   const filtered = useMemo(() => {
-    let r = PRODUCTS.filter((p) => p.price <= maxPrice && p.rating >= minRating);
+    let r = all.filter((p) => p.price <= maxPrice && p.rating >= minRating);
     if (activeCat) r = r.filter((p) => p.category === activeCat);
     if (q) r = r.filter((p) => (p.title + p.brand).toLowerCase().includes(q.toLowerCase()));
     if (activeBrands.length) r = r.filter((p) => activeBrands.includes(p.brand));
@@ -35,7 +50,7 @@ function Shop() {
     if (sort === "high") r = [...r].sort((a, b) => b.price - a.price);
     if (sort === "rating") r = [...r].sort((a, b) => b.rating - a.rating);
     return r;
-  }, [q, activeCat, activeBrands, maxPrice, minRating, sort]);
+  }, [all, q, activeCat, activeBrands, maxPrice, minRating, sort]);
 
   return (
     <div className="mx-auto max-w-[1400px] px-4 pt-8">
@@ -44,6 +59,9 @@ function Shop() {
           <div className="text-xs tracking-luxury text-muted-foreground">CATALOG</div>
           <h1 className="font-serif text-4xl">{activeCat ?? "All products"}</h1>
           {q && <p className="text-sm text-muted-foreground mt-1">Results for "{q}"</p>}
+          {!loadingDb && dbProducts.length > 0 && (
+            <p className="text-xs text-neon mt-1">{dbProducts.length} live seller listing{dbProducts.length === 1 ? "" : "s"}</p>
+          )}
         </div>
         <div className="flex items-center gap-3 text-sm">
           <select value={sort} onChange={(e) => setSort(e.target.value)} className="bg-card border border-border rounded-full px-4 py-2 text-xs">
@@ -108,7 +126,10 @@ function Shop() {
         </aside>
 
         <div>
-          <div className="text-xs text-muted-foreground mb-3">{filtered.length} results</div>
+          <div className="text-xs text-muted-foreground mb-3 flex items-center gap-2">
+            {loadingDb && <Loader2 size={12} className="animate-spin"/>}
+            {filtered.length} results
+          </div>
           {view === "grid" ? (
             <div className="grid gap-4 grid-cols-2 md:grid-cols-3 xl:grid-cols-4">
               {filtered.map((p) => <ProductCard key={p.id} p={p} />)}

@@ -372,10 +372,10 @@ function Dashboard({ profile }: { profile: ProfileRow }) {
             <Megaphone size={14} /> New campaign
           </Link>
           <Link
-            to="/seller"
+            to="/seller/products"
             className="bg-primary text-primary-foreground rounded-full px-5 py-2.5 text-sm flex items-center gap-2 font-semibold"
           >
-            <Plus size={14} /> Add product
+            <Plus size={14} /> Manage products
           </Link>
         </div>
       </div>

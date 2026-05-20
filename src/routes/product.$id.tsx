@@ -2,11 +2,19 @@ import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useState } from "react";
 import { Heart, Share2, Truck, Shield, RotateCcw, Star, Plus, Minus } from "lucide-react";
 import { getProduct, PRODUCTS } from "@/lib/products";
+import { fetchProductById } from "@/lib/db-products";
 import { useCart } from "@/store/cart";
 import { ProductCard } from "@/components/ProductCard";
 
 export const Route = createFileRoute("/product/$id")({
-  loader: ({ params }) => {
+  loader: async ({ params }) => {
+    // Try the live seller catalog first (DB), then fall back to the demo set.
+    try {
+      const db = await fetchProductById(params.id);
+      if (db) return db;
+    } catch {
+      // fall through to static
+    }
     const p = getProduct(params.id);
     if (!p) throw notFound();
     return p;
