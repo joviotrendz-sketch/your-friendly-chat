@@ -37,9 +37,18 @@ export function Header() {
   return (
     <header className="sticky top-0 z-50 bg-glass border-b border-border">
       <div className="mx-auto max-w-[1400px] px-4 py-3 flex items-center gap-4">
-        <Link to="/" className="font-serif text-2xl tracking-luxury text-foreground">
-          JOVIO
-        </Link>
+        <div className="flex flex-col items-start gap-1.5 shrink-0">
+          <Link to="/" className="font-serif text-2xl tracking-luxury text-foreground leading-none">
+            JOVIO
+          </Link>
+          <Link
+            to="/seller"
+            className="inline-flex items-center gap-1.5 bg-primary text-primary-foreground rounded-full px-3 py-1 text-[11px] font-semibold whitespace-nowrap hover:opacity-90 transition"
+            aria-label="Open a store on JOVIO"
+          >
+            <Store size={12} /> Open a Store
+          </Link>
+        </div>
 
         <form onSubmit={submit} className="flex-1 hidden md:flex items-center bg-card rounded-full border border-border focus-within:neon-border transition">
           <select className="bg-transparent text-xs px-4 py-2.5 border-r border-border outline-none">
