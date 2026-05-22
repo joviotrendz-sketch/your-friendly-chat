@@ -43,11 +43,15 @@ const onboardingSchema = z.object({
     .max(60, "Store name must be 60 characters or fewer"),
   store_slug: z
     .string()
-    .trim()
-    .toLowerCase()
-    .min(3, "Slug must be at least 3 characters")
-    .max(40, "Slug must be 40 characters or fewer")
-    .regex(/^[a-z0-9-]+$/, "Use only lowercase letters, numbers, and hyphens"),
+    .transform((s) => s.trim().toLowerCase())
+    .pipe(
+      z
+        .string()
+        .min(3, "Slug must be at least 3 characters")
+        .max(40, "Slug must be 40 characters or fewer")
+        .regex(/^[a-z0-9-]+$/, "Use only lowercase letters, numbers, and hyphens")
+        .refine((s) => !s.startsWith("-") && !s.endsWith("-"), "Slug can't start or end with a hyphen"),
+    ),
   store_category: z.string().min(1, "Pick a category"),
   store_description: z
     .string()
@@ -153,6 +157,7 @@ function Onboarding({
     }
 
     const payload = {
+      id: userData.user.id,
       is_seller: true,
       store_name: values.store_name,
       store_slug: values.store_slug,
@@ -167,8 +172,7 @@ function Onboarding({
 
     const { data, error } = await supabase
       .from("profiles")
-      .update(payload)
-      .eq("id", userData.user.id)
+      .upsert(payload, { onConflict: "id" })
       .select(
         "is_seller, store_name, store_slug, store_description, store_category, contact_email, contact_phone, country, website_url",
       )
@@ -364,7 +368,17 @@ function Dashboard({ profile }: { profile: ProfileRow }) {
             jovio.com/store/{profile.store_slug}
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
+          {profile.store_slug && (
+            <Link
+              to="/store/$slug"
+              params={{ slug: profile.store_slug }}
+              target="_blank"
+              className="border border-border rounded-full px-5 py-2.5 text-sm flex items-center gap-2"
+            >
+              <Store size={14} /> View live store
+            </Link>
+          )}
           <Link
             to="/seller"
             className="border border-border rounded-full px-5 py-2.5 text-sm flex items-center gap-2"
