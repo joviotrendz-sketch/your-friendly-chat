@@ -1,9 +1,11 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
-import { Package, Heart, Bell, CreditCard, MapPin, Star, TrendingUp, Award } from "lucide-react";
-import { PRODUCTS } from "@/lib/products";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
+import { Package, Heart, Bell, CreditCard, MapPin, Star, TrendingUp, Award, Loader2 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 import { useCart } from "@/store/cart";
 import { ProductCard } from "@/components/ProductCard";
+import { dbToProduct, type DbProduct } from "@/lib/db-products";
+import type { Product } from "@/lib/products";
 
 export const Route = createFileRoute("/_authenticated/account")({
   head: () => ({ meta: [{ title: "My JOVIO" }] }),
@@ -24,7 +26,25 @@ const TABS = [
 function Account() {
   const [tab, setTab] = useState("orders");
   const wishlist = useCart((s) => s.wishlist);
-  const wishItems = PRODUCTS.filter((p) => wishlist.includes(p.id));
+  const [wishItems, setWishItems] = useState<Product[]>([]);
+  const [loadingWish, setLoadingWish] = useState(false);
+
+  useEffect(() => {
+    if (tab !== "wish" || wishlist.length === 0) {
+      setWishItems([]);
+      return;
+    }
+    setLoadingWish(true);
+    supabase
+      .from("products")
+      .select("*")
+      .in("id", wishlist)
+      .eq("status", "active")
+      .then(({ data }) => {
+        setWishItems(((data ?? []) as DbProduct[]).map(dbToProduct));
+        setLoadingWish(false);
+      });
+  }, [tab, wishlist]);
 
   return (
     <div className="mx-auto max-w-[1400px] px-4 pt-10 grid gap-8 lg:grid-cols-[280px_1fr]">
@@ -32,8 +52,8 @@ function Account() {
         <div className="flex items-center gap-3">
           <div className="h-12 w-12 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-serif text-xl">J</div>
           <div>
-            <div className="font-semibold">Jordan Vex</div>
-            <div className="text-xs text-primary tracking-luxury">JOVIO ELITE · TIER III</div>
+            <div className="font-semibold">My account</div>
+            <div className="text-xs text-primary tracking-luxury">JOVIO MEMBER</div>
           </div>
         </div>
         <nav className="mt-6 space-y-1">
@@ -49,51 +69,27 @@ function Account() {
         {tab === "orders" && (
           <div>
             <h1 className="font-serif text-3xl mb-6">My orders</h1>
-            <div className="space-y-3">
-              {PRODUCTS.slice(0, 4).map((p, i) => (
-                <div key={p.id} className="flex gap-4 bg-card border border-border rounded-2xl p-4">
-                  <img src={p.image} alt="" className="w-20 h-20 rounded-xl object-cover"/>
-                  <div className="flex-1">
-                    <div className="text-xs text-muted-foreground">Order #JV{1000+i}</div>
-                    <div className="font-medium">{p.title}</div>
-                    <div className="text-xs mt-1 text-neon">{["Delivered","In transit","Out for delivery","Processing"][i]}</div>
-                  </div>
-                  <button className="text-xs border border-border rounded-full px-4 py-1.5 self-center">Track</button>
-                </div>
-              ))}
+            <div className="bg-card border border-dashed border-border rounded-2xl p-12 text-center">
+              <Package size={28} className="mx-auto text-muted-foreground"/>
+              <div className="font-serif text-2xl mt-3">No orders yet</div>
+              <p className="text-sm text-muted-foreground mt-2">Your purchases will appear here once you check out.</p>
+              <Link to="/shop" className="inline-block mt-5 bg-primary text-primary-foreground rounded-full px-5 py-2 text-sm font-semibold">Start shopping</Link>
             </div>
           </div>
         )}
         {tab === "wish" && (
           <div>
             <h1 className="font-serif text-3xl mb-6">Wishlist</h1>
-            {wishItems.length ? (
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">{wishItems.map(p => <ProductCard key={p.id} p={p}/>)}</div>
-            ) : <p className="text-muted-foreground">Tap the heart on any product to save it here.</p>}
+            {loadingWish ? (
+              <div className="flex items-center gap-2 text-muted-foreground"><Loader2 size={14} className="animate-spin"/> Loading…</div>
+            ) : wishItems.length ? (
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">{wishItems.map((p) => <ProductCard key={p.id} p={p}/>)}</div>
+            ) : (
+              <p className="text-muted-foreground">Tap the heart on any product to save it here.</p>
+            )}
           </div>
         )}
-        {tab === "loyalty" && (
-          <div>
-            <h1 className="font-serif text-3xl mb-6">JOVIO Elite</h1>
-            <div className="bg-card border border-border rounded-2xl p-8 bg-hero-grad">
-              <div className="text-xs tracking-luxury text-primary">TIER III · OBSIDIAN</div>
-              <div className="font-serif text-4xl mt-2">12,480 points</div>
-              <div className="h-2 rounded-full bg-background mt-4 overflow-hidden"><div className="h-full bg-primary" style={{width:"68%"}}/></div>
-              <div className="text-xs text-muted-foreground mt-2">5,520 points to TIER IV · DIAMOND</div>
-            </div>
-          </div>
-        )}
-        {tab === "stats" && (
-          <div>
-            <h1 className="font-serif text-3xl mb-6">Spending analytics</h1>
-            <div className="grid grid-cols-3 gap-4">
-              {[{l:"This month",v:"$1,240"},{l:"Year",v:"$8,910"},{l:"Lifetime",v:"$34,200"}].map(s=>(
-                <div key={s.l} className="bg-card border border-border rounded-2xl p-5"><div className="text-xs text-muted-foreground">{s.l}</div><div className="font-serif text-3xl mt-1">{s.v}</div></div>
-              ))}
-            </div>
-          </div>
-        )}
-        {!["orders","wish","loyalty","stats"].includes(tab) && (
+        {!["orders","wish"].includes(tab) && (
           <div>
             <h1 className="font-serif text-3xl mb-6 capitalize">{tab}</h1>
             <div className="bg-card border border-border rounded-2xl p-12 text-center text-muted-foreground">Coming soon — JOVIO is launching this surface for you.</div>

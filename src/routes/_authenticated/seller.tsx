@@ -16,7 +16,7 @@ import {
   Store,
   Loader2,
 } from "lucide-react";
-import { PRODUCTS } from "@/lib/products";
+
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/_authenticated/seller")({
@@ -439,46 +439,14 @@ function Dashboard({ profile }: { profile: ProfileRow }) {
         </div>
       </div>
 
-      <div className="mt-8 bg-card border border-border rounded-2xl overflow-hidden">
-        <div className="flex items-center justify-between p-6">
+      <div className="mt-8 bg-card border border-border rounded-2xl p-6 flex items-center justify-between flex-wrap gap-4">
+        <div>
           <h2 className="font-serif text-xl">Inventory</h2>
-          <button className="text-xs text-muted-foreground">Manage all →</button>
+          <p className="text-sm text-muted-foreground mt-1">Add, edit and publish your real product catalog.</p>
         </div>
-        <table className="w-full text-sm">
-          <thead className="text-xs text-muted-foreground border-y border-border">
-            <tr>
-              <th className="text-left p-3">Product</th>
-              <th className="text-left p-3">SKU</th>
-              <th className="text-left p-3">Stock</th>
-              <th className="text-left p-3">Price</th>
-              <th className="text-left p-3">Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {PRODUCTS.slice(0, 6).map((p, i) => (
-              <tr key={p.id} className="border-b border-border/40">
-                <td className="p-3 flex items-center gap-3">
-                  <img
-                    src={p.image}
-                    className="w-10 h-10 rounded-lg object-cover"
-                    alt=""
-                  />
-                  {p.title}
-                </td>
-                <td className="p-3 font-mono text-xs">SKU-{1000 + i}</td>
-                <td className="p-3">{(i + 1) * 23}</td>
-                <td className="p-3">${p.price}</td>
-                <td className="p-3">
-                  <span
-                    className={`text-xs px-2 py-1 rounded-full ${i % 3 ? "bg-neon/15 text-neon" : "bg-primary/15 text-primary"}`}
-                  >
-                    {i % 3 ? "Active" : "Low stock"}
-                  </span>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <Link to="/seller/products" className="bg-primary text-primary-foreground rounded-full px-5 py-2.5 text-sm font-semibold">
+          Manage products →
+        </Link>
       </div>
 
       <div className="mt-8 bg-card border border-border rounded-2xl p-6">
