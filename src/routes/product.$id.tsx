@@ -1,21 +1,14 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Heart, Share2, Truck, Shield, RotateCcw, Star, Plus, Minus } from "lucide-react";
-import { getProduct, PRODUCTS } from "@/lib/products";
-import { fetchProductById } from "@/lib/db-products";
+import { fetchProductById, fetchRelatedProducts } from "@/lib/db-products";
+import type { Product } from "@/lib/products";
 import { useCart } from "@/store/cart";
 import { ProductCard } from "@/components/ProductCard";
 
 export const Route = createFileRoute("/product/$id")({
   loader: async ({ params }) => {
-    // Try the live seller catalog first (DB), then fall back to the demo set.
-    try {
-      const db = await fetchProductById(params.id);
-      if (db) return db;
-    } catch {
-      // fall through to static
-    }
-    const p = getProduct(params.id);
+    const p = await fetchProductById(params.id);
     if (!p) throw notFound();
     return p;
   },
@@ -23,13 +16,19 @@ export const Route = createFileRoute("/product/$id")({
     meta: loaderData
       ? [
           { title: `${loaderData.title} — JOVIO` },
-          { name: "description", content: loaderData.description },
+          { name: "description", content: loaderData.description.slice(0, 160) },
           { property: "og:title", content: loaderData.title },
           { property: "og:image", content: loaderData.image },
+          { property: "twitter:image", content: loaderData.image },
         ]
       : [],
   }),
-  notFoundComponent: () => <div className="p-20 text-center">Product not found</div>,
+  notFoundComponent: () => (
+    <div className="p-20 text-center">
+      <h1 className="font-serif text-3xl">Product not found</h1>
+      <Link to="/shop" className="inline-block mt-4 text-primary">← Back to shop</Link>
+    </div>
+  ),
   errorComponent: () => <div className="p-20 text-center">Couldn't load product.</div>,
   component: PDP,
 });
@@ -37,11 +36,16 @@ export const Route = createFileRoute("/product/$id")({
 function PDP() {
   const p = Route.useLoaderData();
   const [idx, setIdx] = useState(0);
-  const [size, setSize] = useState(p.sizes?.[1] ?? "M");
+  const [size, setSize] = useState(p.sizes?.[1] ?? p.sizes?.[0] ?? "");
   const [qty, setQty] = useState(1);
   const add = useCart((s) => s.add);
-  const gallery = [p.image, ...(p.images ?? [])];
-  const similar = PRODUCTS.filter((x) => x.category === p.category && x.id !== p.id).slice(0, 8);
+  const [similar, setSimilar] = useState<Product[]>([]);
+
+  useEffect(() => {
+    fetchRelatedProducts(p.category, p.id, 8).then(setSimilar).catch(() => setSimilar([]));
+  }, [p.category, p.id]);
+
+  const gallery = [p.image, ...(p.images ?? [])].filter(Boolean);
 
   return (
     <div className="mx-auto max-w-[1400px] px-4 pt-8">
@@ -59,7 +63,7 @@ function PDP() {
             ))}
           </div>
           <div className="aspect-square rounded-2xl overflow-hidden border border-border bg-muted">
-            <img src={gallery[idx]} alt={p.title} className="w-full h-full object-cover"/>
+            {gallery[idx] && <img src={gallery[idx]} alt={p.title} className="w-full h-full object-cover"/>}
           </div>
         </div>
 
@@ -67,32 +71,41 @@ function PDP() {
           <div className="text-xs tracking-luxury text-muted-foreground">{p.brand} · VERIFIED SELLER</div>
           <h1 className="font-serif text-4xl mt-2">{p.title}</h1>
           <div className="flex items-center gap-3 mt-3 text-sm">
-            <span className="flex items-center gap-1 text-primary"><Star size={14} fill="currentColor"/> {p.rating.toFixed(1)}</span>
-            <span className="text-muted-foreground">· {p.reviews} reviews</span>
+            {p.reviews > 0 ? (
+              <>
+                <span className="flex items-center gap-1 text-primary"><Star size={14} fill="currentColor"/> {p.rating.toFixed(1)}</span>
+                <span className="text-muted-foreground">· {p.reviews} reviews</span>
+              </>
+            ) : (
+              <span className="text-muted-foreground">New on JOVIO</span>
+            )}
             <span className="text-neon">· In stock</span>
           </div>
 
           <div className="flex items-baseline gap-3 mt-6">
             <span className="text-4xl font-semibold">${p.price}</span>
             {p.oldPrice && <span className="line-through text-muted-foreground">${p.oldPrice}</span>}
-            <span className="text-xs bg-primary/15 text-primary px-2 py-1 rounded-full">EMI from ${Math.round(p.price/12)}/mo</span>
           </div>
 
-          <div className="mt-6">
-            <div className="text-xs tracking-luxury text-muted-foreground mb-2">COLOR</div>
-            <div className="flex gap-2">
-              {p.colors?.map((c: string) => <button key={c} className="h-7 w-7 rounded-full border border-border" style={{ background: c }}/>)}
+          {p.colors && p.colors.length > 0 && (
+            <div className="mt-6">
+              <div className="text-xs tracking-luxury text-muted-foreground mb-2">COLOR</div>
+              <div className="flex gap-2">
+                {p.colors.map((c: string) => <button key={c} className="h-7 w-7 rounded-full border border-border" style={{ background: c }}/>)}
+              </div>
             </div>
-          </div>
+          )}
 
-          <div className="mt-5">
-            <div className="text-xs tracking-luxury text-muted-foreground mb-2">SIZE</div>
-            <div className="flex gap-2">
-              {p.sizes?.map((s: string) => (
-                <button key={s} onClick={() => setSize(s)} className={`px-4 py-2 rounded-full border text-sm ${size===s?"bg-primary text-primary-foreground border-primary":"border-border"}`}>{s}</button>
-              ))}
+          {p.sizes && p.sizes.length > 0 && (
+            <div className="mt-5">
+              <div className="text-xs tracking-luxury text-muted-foreground mb-2">SIZE</div>
+              <div className="flex gap-2">
+                {p.sizes.map((s: string) => (
+                  <button key={s} onClick={() => setSize(s)} className={`px-4 py-2 rounded-full border text-sm ${size===s?"bg-primary text-primary-foreground border-primary":"border-border"}`}>{s}</button>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
 
           <div className="mt-6 flex items-center gap-4">
             <div className="flex items-center bg-card border border-border rounded-full">
@@ -113,24 +126,26 @@ function PDP() {
           </div>
 
           <div className="mt-8 grid grid-cols-3 gap-2 text-xs">
-            <div className="border border-border rounded-xl p-3"><Truck size={16} className="text-primary"/><div className="mt-2">Free express in 2 days</div></div>
-            <div className="border border-border rounded-xl p-3"><Shield size={16} className="text-primary"/><div className="mt-2">2-year warranty</div></div>
-            <div className="border border-border rounded-xl p-3"><RotateCcw size={16} className="text-primary"/><div className="mt-2">30-day returns</div></div>
+            <div className="border border-border rounded-xl p-3"><Truck size={16} className="text-primary"/><div className="mt-2">Express delivery</div></div>
+            <div className="border border-border rounded-xl p-3"><Shield size={16} className="text-primary"/><div className="mt-2">Buyer protection</div></div>
+            <div className="border border-border rounded-xl p-3"><RotateCcw size={16} className="text-primary"/><div className="mt-2">Easy returns</div></div>
           </div>
 
           <div className="mt-8">
-            <h3 className="font-serif text-xl">About this drop</h3>
-            <p className="text-muted-foreground text-sm mt-2">{p.description}</p>
+            <h3 className="font-serif text-xl">About this product</h3>
+            <p className="text-muted-foreground text-sm mt-2 whitespace-pre-line">{p.description}</p>
           </div>
         </div>
       </div>
 
-      <section className="mt-20">
-        <h2 className="font-serif text-3xl mb-6">Similar drops</h2>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {similar.map((x) => <ProductCard key={x.id} p={x}/>)}
-        </div>
-      </section>
+      {similar.length > 0 && (
+        <section className="mt-20">
+          <h2 className="font-serif text-3xl mb-6">More in {p.category}</h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {similar.map((x) => <ProductCard key={x.id} p={x}/>)}
+          </div>
+        </section>
+      )}
     </div>
   );
 }

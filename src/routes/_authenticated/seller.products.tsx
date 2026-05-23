@@ -197,6 +197,7 @@ function ProductForm({
 }) {
   const [images, setImages] = useState<string[]>(editing?.images ?? []);
   const [uploading, setUploading] = useState(false);
+  const [dragOver, setDragOver] = useState(false);
   const {
     register,
     handleSubmit,
@@ -225,12 +226,15 @@ function ProductForm({
         },
   });
 
-  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files ?? []);
+  const uploadFiles = async (files: File[]) => {
     if (!files.length) return;
     setUploading(true);
     const uploaded: string[] = [];
     for (const file of files) {
+      if (!file.type.startsWith("image/")) {
+        toast.error(`${file.name} is not an image`);
+        continue;
+      }
       if (file.size > 5 * 1024 * 1024) {
         toast.error(`${file.name} is larger than 5MB`);
         continue;
@@ -250,7 +254,17 @@ function ProductForm({
     }
     setImages((s) => [...s, ...uploaded]);
     setUploading(false);
+  };
+
+  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    await uploadFiles(Array.from(e.target.files ?? []));
     e.target.value = "";
+  };
+
+  const handleDrop = async (e: React.DragEvent) => {
+    e.preventDefault();
+    setDragOver(false);
+    await uploadFiles(Array.from(e.dataTransfer.files));
   };
 
   const onSubmit = async (values: FormValues) => {
@@ -350,13 +364,19 @@ function ProductForm({
           </Field>
         </div>
 
-        <div>
-          <div className="text-xs tracking-luxury text-muted-foreground uppercase mb-2">Images</div>
+        <div
+          onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+          onDragLeave={() => setDragOver(false)}
+          onDrop={handleDrop}
+          className={`rounded-2xl border-2 border-dashed transition-colors p-3 ${dragOver ? "border-primary bg-primary/5" : "border-border"}`}
+        >
+          <div className="text-xs tracking-luxury text-muted-foreground uppercase mb-2 px-1">Images · drag & drop</div>
           <div className="grid grid-cols-4 gap-2">
             {images.map((url, i) => (
               <div key={url} className="relative aspect-square rounded-xl overflow-hidden border border-border">
                 <img src={url} alt="" className="w-full h-full object-cover"/>
                 <button type="button" onClick={() => setImages((s) => s.filter((_, idx) => idx !== i))} className="absolute top-1 right-1 p-1 bg-background/80 rounded-full"><X size={10}/></button>
+                {i === 0 && <span className="absolute bottom-1 left-1 text-[9px] bg-primary text-primary-foreground px-1.5 py-0.5 rounded-full">COVER</span>}
               </div>
             ))}
             <label className="aspect-square rounded-xl border border-dashed border-border flex flex-col items-center justify-center text-xs text-muted-foreground cursor-pointer hover:border-primary">
@@ -364,7 +384,7 @@ function ProductForm({
               <input type="file" accept="image/*" multiple onChange={handleUpload} className="hidden" disabled={uploading}/>
             </label>
           </div>
-          <p className="text-[10px] text-muted-foreground mt-2">Up to 5MB per image. First image is the cover.</p>
+          <p className="text-[10px] text-muted-foreground mt-2 px-1">Drop images anywhere in this box · up to 5MB each · first image is the cover.</p>
         </div>
 
         <div className="flex gap-2 pt-2">

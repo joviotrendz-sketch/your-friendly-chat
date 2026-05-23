@@ -33,9 +33,9 @@ export function dbToProduct(p: DbProduct): Product {
     category: p.category,
     price: Number(p.price),
     oldPrice: p.compare_at_price ? Number(p.compare_at_price) : undefined,
-    rating: Number(p.rating) || 4.5,
+    rating: Number(p.rating) || 0,
     reviews: p.review_count || 0,
-    image: p.images[0] ?? `https://picsum.photos/seed/${p.slug}/800/800`,
+    image: p.images[0] ?? "",
     images: p.images.slice(1),
     badge: p.is_featured ? "Featured" : undefined,
     colors: p.colors,
@@ -44,13 +44,14 @@ export function dbToProduct(p: DbProduct): Product {
   };
 }
 
-export async function fetchActiveProducts(): Promise<Product[]> {
+export async function fetchActiveProducts(limit = 200): Promise<Product[]> {
   const { data, error } = await supabase
     .from("products")
     .select("*")
     .eq("status", "active")
+    .gt("stock", 0)
     .order("created_at", { ascending: false })
-    .limit(200);
+    .limit(limit);
   if (error) throw error;
   return (data as DbProduct[]).map(dbToProduct);
 }
@@ -63,4 +64,21 @@ export async function fetchProductById(id: string): Promise<Product | null> {
     .eq("status", "active")
     .maybeSingle();
   return data ? dbToProduct(data as DbProduct) : null;
+}
+
+export async function fetchRelatedProducts(
+  category: string,
+  excludeId: string,
+  limit = 8,
+): Promise<Product[]> {
+  const { data } = await supabase
+    .from("products")
+    .select("*")
+    .eq("status", "active")
+    .eq("category", category)
+    .neq("id", excludeId)
+    .gt("stock", 0)
+    .order("created_at", { ascending: false })
+    .limit(limit);
+  return ((data ?? []) as DbProduct[]).map(dbToProduct);
 }
