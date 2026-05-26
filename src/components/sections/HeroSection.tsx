@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Crown, ChevronDown } from 'lucide-react';
+import { Crown, ChevronDown, ArrowRight } from 'lucide-react';
+import { Link } from '@tanstack/react-router';
 
 export function HeroSection() {
   const containerVariants = {
@@ -71,9 +72,11 @@ export function HeroSection() {
           variants={itemVariants}
           className="flex flex-col sm:flex-row gap-4 justify-center mb-12"
         >
-          <button className="px-8 py-3 bg-amber-600 hover:bg-amber-700 text-white font-semibold rounded-lg transition-colors duration-300">
-            Explore Collection
-          </button>
+          <Link to="/store">
+            <button className="px-8 py-3 bg-amber-600 hover:bg-amber-700 text-white font-semibold rounded-lg transition-colors duration-300 flex items-center gap-2">
+              Explore Collection <ArrowRight className="w-4 h-4" />
+            </button>
+          </Link>
           <button className="px-8 py-3 border border-amber-600 text-amber-500 hover:bg-amber-600/10 font-semibold rounded-lg transition-colors duration-300">
             Join Elite Club
           </button>

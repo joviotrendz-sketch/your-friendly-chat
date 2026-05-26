@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Star, Zap } from 'lucide-react';
+import { Link } from '@tanstack/react-router';
 
 const items = [
   {
@@ -19,7 +20,7 @@ const items = [
     price: '$28,000',
     count: '3 of 8',
     description: 'Exclusive fragrance collection',
-    emoji: '🔮',
+    emoji: '🧴',
   },
   {
     id: 3,
@@ -57,7 +58,7 @@ export function LimitedEditionShowcase() {
         </motion.div>
 
         {/* Items Grid */}
-        <div className="grid md:grid-cols-3 gap-8">
+        <div className="grid md:grid-cols-3 gap-8 mb-12">
           {items.map((item, index) => (
             <motion.div
               key={item.id}
@@ -106,13 +107,30 @@ export function LimitedEditionShowcase() {
                 <p className="text-2xl font-bold text-amber-400 mb-4">{item.price}</p>
 
                 {/* Action Button */}
-                <button className="w-full py-2 bg-amber-600 hover:bg-amber-700 text-white font-semibold rounded-lg transition-colors duration-300 text-sm">
-                  Reserve Now
-                </button>
+                <Link to="/store">
+                  <button className="w-full py-2 bg-amber-600 hover:bg-amber-700 text-white font-semibold rounded-lg transition-colors duration-300 text-sm">
+                    View in Store
+                  </button>
+                </Link>
               </div>
             </motion.div>
           ))}
         </div>
+
+        {/* Store CTA */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          transition={{ duration: 0.8 }}
+          viewport={{ once: true }}
+          className="text-center"
+        >
+          <Link to="/store">
+            <button className="px-8 py-3 bg-amber-600 hover:bg-amber-700 text-white font-semibold rounded-lg transition-colors duration-300">
+              Browse Full Collection
+            </button>
+          </Link>
+        </motion.div>
       </div>
     </section>
   );

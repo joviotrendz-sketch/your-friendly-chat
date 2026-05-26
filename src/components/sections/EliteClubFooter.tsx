@@ -107,26 +107,10 @@ export function EliteClubFooter() {
             <motion.div variants={itemVariants}>
               <h4 className="text-white font-semibold mb-4">Collections</h4>
               <ul className="space-y-2 text-sm text-slate-400">
-                <li>
-                  <a href="#" className="hover:text-amber-400 transition-colors">
-                    Limited Edition
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-amber-400 transition-colors">
-                    Signature Series
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-amber-400 transition-colors">
-                    Bespoke Custom
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-amber-400 transition-colors">
-                    Seasonal Releases
-                  </a>
-                </li>
+                <li><a href="#" className="hover:text-amber-400 transition-colors">Limited Edition</a></li>
+                <li><a href="#" className="hover:text-amber-400 transition-colors">Signature Series</a></li>
+                <li><a href="#" className="hover:text-amber-400 transition-colors">Bespoke Custom</a></li>
+                <li><a href="#" className="hover:text-amber-400 transition-colors">Seasonal Releases</a></li>
               </ul>
             </motion.div>
 
@@ -134,26 +118,10 @@ export function EliteClubFooter() {
             <motion.div variants={itemVariants}>
               <h4 className="text-white font-semibold mb-4">Company</h4>
               <ul className="space-y-2 text-sm text-slate-400">
-                <li>
-                  <a href="#" className="hover:text-amber-400 transition-colors">
-                    About Us
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-amber-400 transition-colors">
-                    Our Story
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-amber-400 transition-colors">
-                    Craftsmanship
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-amber-400 transition-colors">
-                    Careers
-                  </a>
-                </li>
+                <li><a href="#" className="hover:text-amber-400 transition-colors">About Us</a></li>
+                <li><a href="#" className="hover:text-amber-400 transition-colors">Our Story</a></li>
+                <li><a href="#" className="hover:text-amber-400 transition-colors">Craftsmanship</a></li>
+                <li><a href="#" className="hover:text-amber-400 transition-colors">Careers</a></li>
               </ul>
             </motion.div>
 
@@ -163,15 +131,11 @@ export function EliteClubFooter() {
               <ul className="space-y-3 text-sm text-slate-400">
                 <li className="flex items-center gap-2">
                   <Mail className="w-4 h-4 text-amber-500" />
-                  <a href="mailto:info@joviotrendz.com" className="hover:text-amber-400 transition-colors">
-                    info@joviotrendz.com
-                  </a>
+                  <a href="mailto:info@joviotrendz.com" className="hover:text-amber-400 transition-colors">info@joviotrendz.com</a>
                 </li>
                 <li className="flex items-center gap-2">
                   <Phone className="w-4 h-4 text-amber-500" />
-                  <a href="tel:+1234567890" className="hover:text-amber-400 transition-colors">
-                    +1 (234) 567-890
-                  </a>
+                  <a href="tel:+1234567890" className="hover:text-amber-400 transition-colors">+1 (234) 567-890</a>
                 </li>
                 <li className="flex items-start gap-2">
                   <MapPin className="w-4 h-4 text-amber-500 mt-0.5 flex-shrink-0" />
