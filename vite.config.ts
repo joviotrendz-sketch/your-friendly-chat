@@ -13,6 +13,8 @@ export default defineConfig({
     server: { entry: "server" },
   },
   vite: {
-    base: '/your-friendly-chat/',
+    base: process.env.NODE_ENV === 'production' 
+      ? '/your-friendly-chat/' 
+      : '/',
   },
 });
